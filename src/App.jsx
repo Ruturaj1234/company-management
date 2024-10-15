@@ -8,6 +8,12 @@ import ClerkDashboard from "./components/Clerk-dashboard/Clerk-dashboard";
 import ClientManagement from "./components/Clerk-dashboard/ClientManagement"
 import ProjectManagement from "./components/Clerk-dashboard/ProjectManagement"
 import ProjectDetail from "./components/Clerk-dashboard/ProjectDetail"
+import GenerateQuotation from "./components/Clerk-dashboard/GenerateQuotation";
+import GenerateBill from "./components/Clerk-dashboard/GenerateBill";
+import Media from "./components/Clerk-dashboard/Media";
+import QuotationsList from "./components/Clerk-dashboard/QuotationsList";
+import ViewQuotation from "./components/Clerk-dashboard/ViewQuotation";
+
 const App = () => {
     return (
         <Router>
@@ -21,12 +27,29 @@ const App = () => {
                 <Route path="/client-management" element={<ClientManagement/>} />
                 <Route path="/projects/:clientId" element={<ProjectManagement />} />
                 <Route path="/projects/:clientId/:projectId" element={<ProjectDetail />} />
+                <Route
+          path="/client/:clientId/project/:projectId/generate-quotation"
+          element={<GenerateQuotation />}
+        />
+        <Route
+          path="/client/:clientId/project/:projectId/generate-bill"
+          element={<GenerateBill />}
+        />
+        <Route
+          path="/client/:clientId/project/:projectId/media"
+          element={<Media />} />
+<Route path="/quotations" element={<QuotationsList />} />
+<Route path="/view-quotation/:id" element={<ViewQuotation />} />
+
+
+
             </Routes>
         </Router>
     );
 };
 
 export default App;
+
 
 
 
