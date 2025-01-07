@@ -12,7 +12,17 @@ const GenerateQuotation = () => {
     address: "",
     name: "",
     subject: "",
-    products: [{ productName: "", description: "", oldPO: "", qty: "", unit: "", rate: "", amount: "" }],
+    products: [
+      {
+        productName: "",
+        description: "",
+        oldPO: "",
+        qty: "",
+        unit: "",
+        rate: "",
+        amount: "",
+      },
+    ],
   });
 
   // Add Product Handler
@@ -21,7 +31,15 @@ const GenerateQuotation = () => {
       ...prevData,
       products: [
         ...prevData.products,
-        { productName: "", description: "", oldPO: "", qty: "", unit: "", rate: "", amount: "" },
+        {
+          productName: "",
+          description: "",
+          oldPO: "",
+          qty: "",
+          unit: "",
+          rate: "",
+          amount: "",
+        },
       ],
     }));
   };
@@ -50,46 +68,80 @@ const GenerateQuotation = () => {
   };
 
   // Save Quotation to Backend
-  const handleSaveQuotation = () => {
-    const url = 'http://your-server-url/save_quotation.php'; // Replace with your PHP API URL
+  const handleSaveQuotation = async () => {
+    const url = "http://your-server-url/save_quotation.php"; // Replace with your PHP API URL
 
+    // Prepare payload
     const payload = {
-      referenceNo: quotationData.referenceNo,
-      address: quotationData.address,
-      name: quotationData.name,
-      subject: quotationData.subject,
+      referenceNo: quotationData.referenceNo.trim(),
+      address: quotationData.address.trim(),
+      name: quotationData.name.trim(),
+      subject: quotationData.subject.trim(),
       clientId,
       projectId,
-      products: quotationData.products,
+      products: quotationData.products.map((product) => ({
+        productName: product.productName.trim(),
+        description: product.description.trim(),
+        oldPO: product.oldPO.trim(),
+        qty: product.qty,
+        unit: product.unit.trim(),
+        rate: product.rate,
+        amount: product.amount,
+      })),
     };
 
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.status === 'success') {
-          alert('Quotation saved successfully!');
-          navigate('/quotations'); // Navigate to the quotations list after saving
-        } else {
-          alert('Failed to save quotation. Please try again.');
-        }
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-        alert('An error occurred while saving the quotation.');
+    // Basic validation
+    if (
+      !payload.referenceNo ||
+      !payload.name ||
+      !payload.subject ||
+      !payload.address
+    ) {
+      alert(
+        "Please fill in all required fields (Reference No, Name, Subject, Address)."
+      );
+      return;
+    }
+
+    if (
+      payload.products.some(
+        (product) => !product.productName || !product.qty || !product.rate
+      )
+    ) {
+      alert("Each product must have a name, quantity, and rate.");
+      return;
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === "success") {
+        alert("Quotation saved successfully!");
+        navigate("/view-quotation"); // Redirect after successful save
+      } else {
+        alert(data.message || "Failed to save quotation. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert(
+        "An error occurred while saving the quotation. Please check your internet connection and try again."
+      );
+    }
   };
 
   const handleDownloadQuotation = () => {
     const doc = new jsPDF();
 
     // Fetch the local image and add it to the PDF
-    const imageUrl = '/public/image.png'; // Specify the correct relative path to the image
+    const imageUrl = "/public/image.png"; // Specify the correct relative path to the image
     const img = new Image();
     img.src = imageUrl;
 
@@ -118,7 +170,11 @@ const GenerateQuotation = () => {
       // Add Body Text
       doc.setFontSize(10);
       doc.text("Respected Sir,", 20, 90);
-      doc.text("With reference to the above, we take pleasure in offering our services for carrying out the work as follows:", 20, 100);
+      doc.text(
+        "With reference to the above, we take pleasure in offering our services for carrying out the work as follows:",
+        20,
+        100
+      );
 
       // Initialize currentY for positioning
       let currentY = 110; // Start Y position for the first product
@@ -148,7 +204,7 @@ const GenerateQuotation = () => {
           head: [["Qty", "Unit", "Rate", "Amount"]],
           body: productRows,
           startY: currentY,
-          theme: 'grid',
+          theme: "grid",
           headStyles: {
             fillColor: [22, 160, 133], // Change header color
             textColor: [255, 255, 255], // White text color
@@ -174,9 +230,21 @@ const GenerateQuotation = () => {
       // Add Footer Information
       doc.setFontSize(10);
       doc.setTextColor(40); // Dark text color
-      doc.text("TAXATION: IGST @ 18% on Total Contract Value.", 20, currentY + 10);
-      doc.text("TRANSPORTATION: Transport Cost will be charged extra along with IGST@18%.", 20, currentY + 20);
-      doc.text("PAYMENT TERM: Within 15 Days of Submission of Bill.", 20, currentY + 30);
+      doc.text(
+        "TAXATION: IGST @ 18% on Total Contract Value.",
+        20,
+        currentY + 10
+      );
+      doc.text(
+        "TRANSPORTATION: Transport Cost will be charged extra along with IGST@18%.",
+        20,
+        currentY + 20
+      );
+      doc.text(
+        "PAYMENT TERM: Within 15 Days of Submission of Bill.",
+        20,
+        currentY + 30
+      );
 
       // Page 2 for Terms & Conditions
       doc.addPage();
@@ -205,7 +273,11 @@ const GenerateQuotation = () => {
       });
 
       // Signature
-      doc.text("Hope you will find our offer in line with your requirements.", 20, termY + 20);
+      doc.text(
+        "Hope you will find our offer in line with your requirements.",
+        20,
+        termY + 20
+      );
       doc.text("Thanking you, Cordially,", 20, termY + 30);
       doc.text("For, Sai Samarth Polytech Pvt. Ltd.", 20, termY + 40);
       doc.text("Atulkumar Patil – Director (09324529411)", 20, termY + 50);
@@ -216,20 +288,23 @@ const GenerateQuotation = () => {
 
     // Handle image load error
     img.onerror = function () {
-      console.error('Error loading image');
+      console.error("Error loading image");
     };
   };
-  
 
   return (
-    
     <div className="flex flex-col items-center bg-gray-100 p-6 min-h-screen">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-3xl">
         <header className="flex items-center mb-4">
-          <button onClick={() => navigate(-1)} className="text-gray-700 font-semibold">
+          <button
+            onClick={() => navigate(-1)}
+            className="text-gray-700 font-semibold"
+          >
             &larr; Back
           </button>
-          <h2 className="text-2xl font-bold text-center flex-grow">Generate Quotation</h2>
+          <h2 className="text-2xl font-bold text-center flex-grow">
+            Generate Quotation
+          </h2>
         </header>
 
         <div className="mb-6">
@@ -294,14 +369,23 @@ const GenerateQuotation = () => {
 
             <h4 className="text-lg font-semibold mt-4">Products</h4>
             {quotationData.products.map((product, index) => (
-              <div key={index} className="border border-gray-300 p-4 rounded mb-2">
+              <div
+                key={index}
+                className="border border-gray-300 p-4 rounded mb-2"
+              >
                 <div className="flex flex-col space-y-2">
                   <label>
                     Product Name:
                     <input
                       type="text"
                       value={product.productName}
-                      onChange={(e) => handleProductChange(index, "productName", e.target.value)}
+                      onChange={(e) =>
+                        handleProductChange(
+                          index,
+                          "productName",
+                          e.target.value
+                        )
+                      }
                       placeholder="Enter product name"
                       className="border border-gray-300 rounded p-2 w-full"
                       required // Added required attribute for better UX
@@ -312,7 +396,13 @@ const GenerateQuotation = () => {
                     <input
                       type="text"
                       value={product.description}
-                      onChange={(e) => handleProductChange(index, "description", e.target.value)}
+                      onChange={(e) =>
+                        handleProductChange(
+                          index,
+                          "description",
+                          e.target.value
+                        )
+                      }
                       placeholder="Enter description"
                       className="border border-gray-300 rounded p-2 w-full"
                     />
@@ -322,7 +412,9 @@ const GenerateQuotation = () => {
                     <input
                       type="text"
                       value={product.oldPO}
-                      onChange={(e) => handleProductChange(index, "oldPO", e.target.value)}
+                      onChange={(e) =>
+                        handleProductChange(index, "oldPO", e.target.value)
+                      }
                       placeholder="Enter old PO"
                       className="border border-gray-300 rounded p-2 w-full"
                     />
@@ -333,7 +425,9 @@ const GenerateQuotation = () => {
                       <input
                         type="number"
                         value={product.qty}
-                        onChange={(e) => handleProductChange(index, "qty", e.target.value)}
+                        onChange={(e) =>
+                          handleProductChange(index, "qty", e.target.value)
+                        }
                         placeholder="Enter quantity"
                         className="border border-gray-300 rounded p-2 w-full"
                         min="0"
@@ -344,7 +438,9 @@ const GenerateQuotation = () => {
                       <input
                         type="text"
                         value={product.unit}
-                        onChange={(e) => handleProductChange(index, "unit", e.target.value)}
+                        onChange={(e) =>
+                          handleProductChange(index, "unit", e.target.value)
+                        }
                         placeholder="Enter unit"
                         className="border border-gray-300 rounded p-2 w-full"
                       />
@@ -354,7 +450,9 @@ const GenerateQuotation = () => {
                       <input
                         type="number"
                         value={product.rate}
-                        onChange={(e) => handleProductChange(index, "rate", e.target.value)}
+                        onChange={(e) =>
+                          handleProductChange(index, "rate", e.target.value)
+                        }
                         placeholder="Enter rate"
                         className="border border-gray-300 rounded p-2 w-full"
                         min="0"

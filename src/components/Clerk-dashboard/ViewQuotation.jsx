@@ -1,54 +1,91 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ViewQuotation = () => {
-  const { id } = useParams(); // Get the quotation ID from the URL
-  const [quotation, setQuotation] = useState(null);
+  const [quotations, setQuotations] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch the selected quotation details from backend
-    const url = `http://your-server-url/get_quotation.php?id=${id}`; // PHP API URL to fetch a specific quotation
+    // Fetch quotations from backend
+    const url = "http://your-server-url/get_quotations.php";
 
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        if (data.status === 'success') {
-          setQuotation(data.quotation); // Assuming the response has a 'quotation' object
+        if (data.status === "success") {
+          setQuotations(data.quotations); // Assume 'quotations' is an array
         } else {
-          console.error("Failed to fetch quotation.");
+          console.error("Failed to fetch quotations.");
         }
       })
       .catch((error) => {
-        console.error('Error fetching quotation:', error);
+        console.error("Error fetching quotations:", error);
       });
-  }, [id]);
+  }, []);
 
-  if (!quotation) {
-    return <div>Loading...</div>; // Loading state
-  }
+  const handleDelete = (id) => {
+    // Call backend API to delete the quotation
+    const url = `http://your-server-url/delete_quotation.php?id=${id}`;
+
+    fetch(url, { method: "DELETE" })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "success") {
+          setQuotations(quotations.filter((q) => q.id !== id));
+        } else {
+          console.error("Failed to delete quotation.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting quotation:", error);
+      });
+  };
+
+  const handleView = (id) => navigate(`/view-details/${id}`);
+  const handleModify = (id) => navigate(`/modify-quotation/${id}`);
 
   return (
-    <div className="flex flex-col items-center bg-gray-100 p-6 min-h-screen">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-3xl">
-        <h2 className="text-2xl font-bold mb-4">Quotation Details</h2>
-        <h3 className="font-semibold">Ref. No: {quotation.referenceNo}</h3>
-        <p>Name: {quotation.name}</p>
-        <p>Address: {quotation.address}</p>
-        <p>Subject: {quotation.subject}</p>
-        <h4 className="mt-4 font-semibold">Products:</h4>
-        <ul className="space-y-2">
-          {quotation.products.map((product, index) => (
-            <li key={index} className="border border-gray-300 p-2 rounded">
-              <p>Product Name: {product.productName}</p>
-              <p>Description: {product.description}</p>
-              <p>Old PO: {product.oldPO}</p>
-              <p>Qty: {product.qty}</p>
-              <p>Unit: {product.unit}</p>
-              <p>Rate: {product.rate}</p>
-              <p>Amount: {product.amount}</p>
+    <div className="flex min-h-screen">
+      <div className="w-1/4 bg-gray-200 p-4">
+        <h3 className="font-bold text-lg mb-2">Projects</h3>
+        <ul>
+          {quotations.map((q) => (
+            <li key={q.id} className="p-2 border mb-2 bg-white">
+              {q.projectName}
             </li>
           ))}
         </ul>
+      </div>
+      <div className="w-3/4 bg-gray-100 p-4">
+        <h3 className="font-bold text-lg mb-2">Actions</h3>
+        {quotations.map((q) => (
+          <div
+            key={q.id}
+            className="flex justify-between items-center p-2 border mb-2 bg-white"
+          >
+            <span>{q.projectName}</span>
+            <div>
+              <button
+                onClick={() => handleView(q.id)}
+                className="bg-blue-500 text-white p-1 rounded mr-2"
+              >
+                View
+              </button>
+              <button
+                onClick={() => handleModify(q.id)}
+                className="bg-yellow-500 text-white p-1 rounded mr-2"
+              >
+                Modify
+              </button>
+              <button
+                onClick={() => handleDelete(q.id)}
+                className="bg-red-500 text-white p-1 rounded"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
