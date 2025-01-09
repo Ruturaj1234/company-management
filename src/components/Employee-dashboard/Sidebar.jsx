@@ -1,41 +1,43 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 
-const Sidebar = () => {
-    return (
-        <div className="bg-white shadow-lg w-64 min-h-screen">
-            <div className="p-4">
-                <h2 className="text-2xl font-bold text-orange-600">Employee Menu</h2>
-            </div>
-            <nav className="mt-4">
-                <ul>
-                    <li>
-                        <Link to="/employee-dashboard" className="block p-4 text-gray-700 hover:bg-orange-100">
-                            Dashboard
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="/view-tasks" className="block p-4 text-gray-700 hover:bg-orange-100">
-                            View Tasks
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="/submit-reports" className="block p-4 text-gray-700 hover:bg-orange-100">
-                            Submit Reports
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="/settings" className="block p-4 text-gray-700 hover:bg-orange-100">
-                            Settings
-                        </Link>
-                    </li>
-                    {/* Add more links as needed */}
-                </ul>
-            </nav>
-        </div>
-    );
+const Sidebar = ({ isOpen, onClose }) => {
+  return (
+    <div
+      className={`fixed top-0 left-0 w-64 h-full bg-white shadow-lg transition-transform duration-300 ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      }`}
+    >
+      <div className="flex justify-between items-center p-4 border-b">
+        <h2 className="text-lg font-bold">Menu</h2>
+        <button onClick={onClose} className="text-gray-700">
+          X
+        </button>
+      </div>
+      <nav className="mt-4">
+        <ul className="space-y-2">
+          <li>
+            <Link to="/personolinformation" className="block p-2 text-gray-700 hover:bg-gray-100 rounded">
+              Personal Information
+            </Link>
+          </li>
+          <li>
+            <Link to="/assignedproject" className="block p-2 text-gray-700 hover:bg-gray-100 rounded">
+              Assigned Projects
+            </Link>
+          </li>
+          <li>
+            <Link to="/leavesalary" className="block p-2 text-gray-700 hover:bg-gray-100 rounded">
+              Salary Slip and Leave Management
+            </Link>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  );
 };
 
 export default Sidebar;
+
 
 

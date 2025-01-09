@@ -1,32 +1,26 @@
-// EmployeeManagement.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaUsers, FaTasks, FaEnvelope } from "react-icons/fa";
 import EmployeeList from "./employee-list"; // Import the EmployeeList component
 import AssignWork from "./assign-work"; // Import the AssignWork component
 
 const EmployeeManagement = () => {
-  const [employees] = useState([
-    {
-      id: 1,
-      username: "john_doe",
-      personalDetails: { name: "John Doe", age: 30, address: "123 Street" },
-      bankDetails: { accountNumber: "1234567890", ifsc: "ABC1234" },
-      salary: { basic: 30000, da: 5000, hra: 8000, maintenance: 2000 },
-      projects: ["Project A", "Project B"],
-    },
-    {
-      id: 2,
-      username: "jane_smith",
-      personalDetails: { name: "Jane Smith", age: 28, address: "456 Avenue" },
-      bankDetails: { accountNumber: "9876543210", ifsc: "XYZ5678" },
-      salary: { basic: 35000, da: 6000, hra: 9000, maintenance: 3000 },
-      projects: ["Project X", "Project Y"],
-    },
-  ]);
-
+  const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [showContent, setShowContent] = useState("employeeList");
   const [message, setMessage] = useState("");
+
+  // Fetch employee names from the backend
+  useEffect(() => {
+    fetch("http://localhost/fetchEmployees.php") // Update the URL if necessary
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch employee data");
+        }
+        return response.json();
+      })
+      .then((data) => setEmployees(data))
+      .catch((error) => console.error("Error:", error));
+  }, []);
 
   return (
     <div className="p-6 max-w-5xl mx-auto bg-gray-100 rounded-lg shadow-md">
