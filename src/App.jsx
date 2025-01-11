@@ -27,7 +27,7 @@ import Sidebar from "./components/Employee-dashboard/Sidebar"
 import PersonolInformation from "./components/Employee-dashboard/personolinformation"
 import AssignedProject from "./components/Employee-dashboard/assignedproect"
 import LeaveSallary from "./components/Employee-dashboard/leavesallary"
-
+import CurrentProject from "./components/Clerk-dashboard/current-projects"
 
 
 const App = () => {
@@ -70,7 +70,7 @@ const App = () => {
         <Route path="/personolinformation" element={<PersonolInformation />} />
         <Route path="/assignedproject" element={<AssignedProject />} />
         <Route path="/leavesalary" element={<LeaveSallary />} />
-
+        <Route path="/current-project" element={<CurrentProject />} />
       </Routes>
     </Router>
   );

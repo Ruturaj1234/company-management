@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { FaUsers, FaTasks, FaEnvelope } from "react-icons/fa";
+import { FaUsers, FaTasks, FaEnvelope, FaClipboardList } from "react-icons/fa";
 import EmployeeList from "./employee-list"; // Import the EmployeeList component
 import AssignWork from "./assign-work"; // Import the AssignWork component
+import CurrentProjects from "./current-projects"; // Import the CurrentProjects component
 
 const EmployeeManagement = () => {
   const [employees, setEmployees] = useState([]);
@@ -28,7 +29,7 @@ const EmployeeManagement = () => {
         Employee Management
       </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-4">
         {/* Employee List Section */}
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center mb-4">
@@ -57,6 +58,20 @@ const EmployeeManagement = () => {
           </button>
         </div>
 
+        {/* Currently Working Projects Section */}
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="flex items-center mb-4">
+            <FaClipboardList className="text-purple-500 text-2xl mr-2" />
+            <h2 className="text-xl font-semibold">Currently Working Projects</h2>
+          </div>
+          <button
+            onClick={() => setShowContent("workingProjects")}
+            className="w-full bg-purple-600 text-white px-4 py-2 rounded"
+          >
+            Show Working Projects
+          </button>
+        </div>
+
         {/* Requests Section */}
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center mb-4">
@@ -67,7 +82,7 @@ const EmployeeManagement = () => {
         </div>
       </div>
 
-      {/* Render Employee List or Assign Work content */}
+      {/* Render content based on the selected section */}
       {showContent === "employeeList" && (
         <EmployeeList
           employees={employees}
@@ -83,6 +98,8 @@ const EmployeeManagement = () => {
           setMessage={setMessage}
         />
       )}
+
+      {showContent === "workingProjects" && <CurrentProjects />}
 
       {message && <p className="mt-2 text-green-500">{message}</p>}
     </div>
